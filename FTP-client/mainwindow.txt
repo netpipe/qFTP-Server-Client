@@ -1,0 +1,248 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent):
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    //Set progress bar
+    ui->progressBar->setValue(0);
+    ui->progressBar->setAlignment(Qt::AlignRight | Qt::AlignVCenter); // alignment
+    ui->progressBar->setFormat(QString::fromUtf8("No task currently: %1%").arg(QString::number(0,'f', 1)));
+
+    //Apply style
+    QFile stylesheet("main.qss");
+    stylesheet.open(QFile::ReadOnly);
+    this->setStyleSheet(stylesheet.readAll());
+    stylesheet.close();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+/************************************************* **********************************************
+*Function name: initFTP
+*Function description: Initially record URL address, username, password, and check the legality of URL address
+*Function parameters: None
+*Function return value: bool
+*Author: sakuya
+*Function creation date: 2019/1/24
+*Function modification date: 2019/1/28
+*Modified by: sakuya
+*Reason for modification: Added detection of the legality of URL addresses
+*Version: 1.1
+*Historical version: 1.0
+************************************************** *********************************************/
+bool MainWindow::initFTP()
+{
+    //Judging whether the URL address, username and password are filled in
+    if (ui->lineEdit_ftp->text().isEmpty()) {
+        QMessageBox::critical(NULL, tr("Error"), "URL address cannot be empty");
+        return false;
+    }
+    else if (ui->lineEdit_user->text().isEmpty()) {
+        QMessageBox::critical(NULL, tr("Error"), "user cannot be empty");
+        return false;
+    }
+    else if (ui->lineEdit_user->text().isEmpty()) {
+        QMessageBox::critical(NULL, tr("Error"), "Password cannot be empty");
+        return false;
+    }
+    else {
+        ftpPath = ui->lineEdit_ftp->text();
+        user = ui->lineEdit_user->text();
+        password = ui->lineEdit_password->text();
+        //Check if the URL address is legal
+        QUrl url = QUrl(ftpPath);
+        if (!url.isValid()) {
+            QMessageBox::critical(NULL, tr("Error"), "URL address is invalid!");
+            return false;
+        }
+        else if (url.scheme() != "ftp") {
+            QMessageBox::critical(NULL, tr("Error"), "URL address must start with ftp!");
+            return false;
+        }
+        return true;
+    }
+}
+
+/************************************************* **********************************************
+*Function name: replyFinished
+*Function description: delete pointer, update and close file
+*Function parameters: None
+*Function return value: None
+*Author: sakuya
+*Function creation date: 2019/1/25
+*Function modification date:
+*Modified by:
+*Modify reason :
+*Version: 1.0
+*Historical version: None
+************************************************** *********************************************/
+void MainWindow::replyFinished(QNetworkReply*)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+            reply->deleteLater();
+            file->flush();
+            file->close();
+        }
+        else {
+            QMessageBox::critical(NULL, tr("Error"), "Error!!!");
+        }
+}
+
+/************************************************* **********************************************
+*Function name: loadProgress
+*Function description: Update progress bar
+*Function parameter: qint64
+*Function return value: None
+*Author: sakuya
+*Function creation date: 2019/1/25
+*Function modification date:
+*Modified by:
+*Modify reason :
+*Version: 1.0
+*Historical version: None
+************************************************** *********************************************/
+void MainWindow::loadProgress(qint64 bytesSent, qint64 bytesTotal)
+{
+    ui->progressBar->setValue(0);
+    qDebug() << "loaded" << bytesSent << "of" << bytesTotal;
+    ui->progressBar->setMaximum(bytesTotal); //Maximum
+    ui->progressBar->setValue(bytesSent); //current value
+    double currentProgress = (bytesSent-ui->progressBar->minimum()) * 100.0 / (bytesTotal-ui->progressBar->minimum());
+    ui->progressBar->setFormat(QString::fromUtf8("Current progress is: %1%").arg(QString::number(currentProgress,'f', 1)));
+}
+
+/************************************************* **********************************************
+*Function name: getFileName
+*Function description: get the file name of the incoming path
+*Function parameter: QString
+*Function return value: QString
+*Author: sakuya
+*Function creation date: 2019/1/25
+*Function modification date:
+*Modified by:
+*Modify reason :
+*Version: 1.0
+*Historical version: None
+************************************************** *********************************************/
+QString MainWindow::getFileName(QString m_filePath)
+{
+    QString temp;
+    QString fileName;
+    int count = -1;
+    fileName = m_filePath;
+    for(int i = 0; temp != "/"; i++)
+    {
+        temp = fileName.right(1);
+        fileName.chop(1);
+        count++;
+    }
+    fileName = m_filePath.right(count);
+
+    return fileName;
+}
+
+/************************************************* **********************************************
+*Function name: replyError
+*Function description: An error occurs in the download process, and an error report is processed (overtime processing also throws out a timeout signal, and it is processed by this slot function)
+*Function parameter: NetworkError
+*Function return value: None
+*Author: sakuya
+*Function creation date: 2019/1/28
+*Function modification date:
+*Modified by:
+*Modify reason :
+*Version: 1.0
+*Historical version: None
+************************************************** *********************************************/
+void MainWindow::replyError(QNetworkReply::NetworkError error)
+{
+    auto metaEnum = QMetaEnum::fromType<QNetworkReply::NetworkError>();
+    //The enumeration value is converted to a string
+    auto errStr = metaEnum.valueToKey(error);
+    QMessageBox::critical(NULL, tr("Error"), QString(errStr));
+
+    file->deleteLater();
+    file = Q_NULLPTR;
+
+    reply->deleteLater();
+}
+
+//Write data to a local file when downloading
+void MainWindow::readContent()
+{
+    file->write(reply->readAll());
+}
+
+//upload files
+void MainWindow::on_Btn_upload_clicked()
+{
+    if (initFTP()) {
+        //Get the path of the selected file, save it in the string list
+        QStringList string_list;
+        string_list = QFileDialog::getOpenFileNames(this, tr("select file"), "", tr("Files (*)"));
+        if (!string_list.isEmpty()) {
+            for (int i = 0; i <string_list.count(); i++) {
+                QString filePath;
+                filePath = string_list.at(i);
+                file = new QFile(filePath);
+                file->open(QIODevice::ReadOnly);
+                QByteArray byte_file = file->readAll();
+
+                QString fileName;
+                fileName = getFileName(filePath);
+                QString m_ftpPath;
+                m_ftpPath = ftpPath + "/" + fileName;
+
+                //Upload the selected file to the server
+                accessManager = new QNetworkAccessManager(this);
+                accessManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+                QUrl url(m_ftpPath);
+                url.setPort(21);
+                url.setUserName(user);
+                url.setPassword(password);
+
+                QNetworkRequest request(url);
+                reply = accessManager->put(request, byte_file);
+
+                connect(accessManager,SIGNAL(finished(QNetworkReply*)),this,SLOT(replyFinished(QNetworkReply*)));
+                connect(reply, SIGNAL(uploadProgress(qint64 ,qint64)), this, SLOT(loadProgress(qint64 ,qint64)));
+                connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(replyError(QNetworkReply::NetworkError)));
+            }
+        }
+    }
+}
+
+//download file
+void MainWindow::on_Btn_download_clicked()
+{
+    if (initFTP()) {
+        QString folderPath;
+        folderPath = QFileDialog::getExistingDirectory(this, tr("select file"), "", QFileDialog::ShowDirsOnly);
+        file = new QFile(folderPath + "/test.jpg");
+        file->open(QIODevice::WriteOnly);
+
+        //Download the file from the server to the selected folder
+        QNetworkAccessManager *accessManager = new QNetworkAccessManager(this);
+        accessManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+        QUrl url("ftp://192.168.43.129/software/timg.jpeg");
+        url.setPort(21);
+        url.setUserName("jinxiaodan");
+        url.setPassword("abcd1234");
+
+        QNetworkRequest request(url);
+        reply = accessManager->get(request);
+
+        connect((QObject *)reply, SIGNAL(readyRead()), this, SLOT(readContent()));
+        connect(accessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
+        connect(reply, SIGNAL(downloadProgress(qint64 ,qint64)), this, SLOT(loadProgress(qint64 ,qint64)));
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(replyError(QNetworkReply::NetworkError)));
+    }
+}
+
