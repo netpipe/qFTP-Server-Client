@@ -49,6 +49,9 @@
     <property name="styleSheet">
      <string notr="true">font: 10pt &quot;Arial&quot;;</string>
     </property>
+    <property name="text">
+     <string>ftp://127.0.0.1:8258/</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_user">
     <property name="geometry">
@@ -78,6 +81,9 @@
     <property name="styleSheet">
      <string notr="true">font: 10pt &quot;Arial&quot;;</string>
     </property>
+    <property name="text">
+     <string>admin</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_password">
     <property name="geometry">
@@ -103,6 +109,9 @@
       <width>120</width>
       <height>30</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>qt</string>
     </property>
     <property name="echoMode">
      <enum>QLineEdit::Password</enum>
