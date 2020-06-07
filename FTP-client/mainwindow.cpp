@@ -40,19 +40,19 @@ MainWindow::~MainWindow()
 bool MainWindow::initFTP()
 {
     //Judging whether the URL address, username and password are filled in
-    if (ui->lineEdit_ftp->text().isEmpty()) {
-        QMessageBox::critical(NULL, tr("Error"), "URL address cannot be empty");
-        return false;
-    }
-    else if (ui->lineEdit_user->text().isEmpty()) {
-        QMessageBox::critical(NULL, tr("Error"), "user cannot be empty");
-        return false;
-    }
-    else if (ui->lineEdit_user->text().isEmpty()) {
-        QMessageBox::critical(NULL, tr("Error"), "Password cannot be empty");
-        return false;
-    }
-    else {
+//    if (ui->lineEdit_ftp->text().isEmpty()) {
+//        QMessageBox::critical(NULL, tr("Error"), "URL address cannot be empty");
+//        return false;
+//    }
+//    else if (ui->lineEdit_user->text().isEmpty()) {
+//        QMessageBox::critical(NULL, tr("Error"), "user cannot be empty");
+//        return false;
+//    }
+//    else if (ui->lineEdit_user->text().isEmpty()) {
+//        QMessageBox::critical(NULL, tr("Error"), "Password cannot be empty");
+//        return false;
+//    }
+  //  else {
         ftpPath = ui->lineEdit_ftp->text();
         user = ui->lineEdit_user->text();
         password = ui->lineEdit_password->text();
@@ -67,7 +67,7 @@ bool MainWindow::initFTP()
             return false;
         }
         return true;
-    }
+  //  }
 }
 
 /************************************************* **********************************************
@@ -204,9 +204,9 @@ void MainWindow::on_Btn_upload_clicked()
                 accessManager = new QNetworkAccessManager(this);
                 accessManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
                 QUrl url(m_ftpPath);
-                url.setPort(21);
-                url.setUserName(user);
-                url.setPassword(password);
+            //    url.setPort(21);
+           //     url.setUserName(user);
+           //     url.setPassword(password);
 
                 QNetworkRequest request(url);
                 reply = accessManager->put(request, byte_file);

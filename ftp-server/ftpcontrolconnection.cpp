@@ -25,6 +25,7 @@ FtpControlConnection::FtpControlConnection(QObject *parent, QSslSocket *socket, 
     this->rootPath = rootPath;
     this->readOnly = readOnly;
     this->userslist = userslist;
+        qDebug() << this->userslist;
     isLoggedIn = false;
     encryptDataConnection = false;
     socket->setParent(this);
@@ -428,13 +429,14 @@ void FtpControlConnection::pass(const QString &password)
     QString command;
     QString commandParameters;
     parseCommand(lastProcessedCommand, &command, &commandParameters);
-
+    qDebug() << "test";
     // load username and password lists of valid users
     //make directory for user and cd to it
     QString USERNAME = this->userName;
     QString PASSWORD = this->password;
 
 if (userslist){ //and file exists
+        qDebug() << "test";
     QFile MyFile("users.txt");
     MyFile.open(QIODevice::ReadWrite);
     QTextStream in (&MyFile);
@@ -443,23 +445,30 @@ if (userslist){ //and file exists
     QStringList names;
     QStringList passwords;
     QRegExp rx("[:]");
+
+    USERNAME = commandParameters;
     do {
         line = in.readLine();
         if (line.contains(USERNAME.toLatin1())) {
             list = line.split(rx);
             names.append(list.at(0).toLatin1());
             passwords.append(list.at(1).toLatin1());
+                qDebug() << list.at(1).toLatin1();
         }
     } while (!line.isNull());
     MyFile.close();
 
-    USERNAME = commandParameters;
-    for (int i=0 ; i < 0; i++){
-
+    qDebug() << "test" << commandParameters;
+    qDebug() << names.count();
+    for (int i=0 ; i < names.count(); i++){
+                qDebug() << names.at(i).toLatin1();
         if (USERNAME==names.at(i).toLatin1()){
+
            USERNAME = names.at(i).toLatin1();
            PASSWORD = passwords.at(i).toLatin1();
+                   qDebug() << "username found";
                 }
+
 
     }
 

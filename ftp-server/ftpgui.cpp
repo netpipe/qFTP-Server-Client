@@ -126,7 +126,7 @@ void FTPGUI::loadSettings()
     ui->lineEditPort->setText(settings.value("settings/port", defaultPort).toString());
     ui->lineEditUserName->setText(settings.value("settings/username", "admin").toString());
     ui->lineEditPassword->setText(settings.value("settings/password", "qt").toString());
-    ui->lineEditRootPath->setText(settings.value("settings/rootpath", QDir::currentPath()).toString()+"/db");
+    ui->lineEditRootPath->setText(settings.value("settings/rootpath", QDir::currentPath()).toString());
     ui->checkBoxAnonymous->setChecked(settings.value("settings/anonymous", false).toBool());
     ui->checkBoxReadOnly->setChecked(settings.value("settings/readonly", false).toBool());
     ui->checkBoxOnlyOneIpAllowed->setChecked(settings.value("settings/oneip", false).toBool());

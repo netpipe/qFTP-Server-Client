@@ -24,6 +24,7 @@ FtpServer::FtpServer(QObject *parent, const QString &rootPath, int port, const Q
     this->rootPath = rootPath;
     this->readOnly = readOnly;
     this->userslist = userslist;
+    qDebug() << this->userslist;
     this->onlyOneIpAllowed = onlyOneIpAllowed;
 }
 
@@ -52,6 +53,6 @@ void FtpServer::startNewControlConnection()
     }
 
     // Create a new FTP control connection on this socket.
-    new FtpControlConnection(this, socket, rootPath, userName, password, readOnly);
+    new FtpControlConnection(this, socket, rootPath, userName, password, readOnly,userslist);
 }
 #endif
