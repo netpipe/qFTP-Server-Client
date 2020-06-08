@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent):
     ui->progressBar->setFormat(QString::fromUtf8("No task currently: %1%").arg(QString::number(0,'f', 1)));
 
     //Apply style
-    QFile stylesheet("main.qss");
+    QFile stylesheet("./Resource/themes/qdarkstyle/qdarkstyle.qss");
     stylesheet.open(QFile::ReadOnly);
     this->setStyleSheet(stylesheet.readAll());
     stylesheet.close();
@@ -204,9 +204,9 @@ void MainWindow::on_Btn_upload_clicked()
                 accessManager = new QNetworkAccessManager(this);
                 accessManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
                 QUrl url(m_ftpPath);
-            //    url.setPort(21);
-           //     url.setUserName(user);
-           //     url.setPassword(password);
+                url.setPort(ui->port->text().toInt());
+                url.setUserName(user);
+                url.setPassword(password);
 
                 QNetworkRequest request(url);
                 reply = accessManager->put(request, byte_file);
@@ -233,9 +233,9 @@ void MainWindow::on_Btn_download_clicked()
         QNetworkAccessManager *accessManager = new QNetworkAccessManager(this);
         accessManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
         QUrl url( ui->lineEdit_ftp->text().toLatin1() );
-   //     url.setPort(21);
-   //     url.setUserName("jinxiaodan");
-   //     url.setPassword("abcd1234");
+        url.setPort(ui->port->text().toInt());
+        url.setUserName(user);
+        url.setPassword(password);
 
         QNetworkRequest request(url);
         reply = accessManager->get(request);

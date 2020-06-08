@@ -13,6 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QFile stylesheet("./Resource/themes/qdarkstyle/qdarkstyle.qss");
+    stylesheet.open(QFile::ReadOnly);
+    this->setStyleSheet(stylesheet.readAll());
+    stylesheet.close();
 
 
 }
