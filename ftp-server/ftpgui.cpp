@@ -42,12 +42,18 @@ FTPGUI::FTPGUI(QWidget *parent)
     // Set window icon.
    // setWindowIcon(QIcon(":/icons/appicon"));
 
+
+    QFile stylesheet("./Resource/themes/qdarkstyle/qdarkstyle.qss");
+    stylesheet.open(QFile::ReadOnly);
+    this->setStyleSheet(stylesheet.readAll());
+    stylesheet.close();
+
+
     loadSettings();
     server = 0;
     startServer();
 
     this->setWindowFlags(Qt::WindowStaysOnTopHint);
-
 }
 
 FTPGUI::~FTPGUI()
