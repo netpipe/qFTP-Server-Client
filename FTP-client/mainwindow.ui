@@ -197,7 +197,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>qt</string>
+     <string>8258</string>
     </property>
     <property name="echoMode">
      <enum>QLineEdit::Normal</enum>

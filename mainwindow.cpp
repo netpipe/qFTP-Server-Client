@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ftp-server/ftpgui.h"
-
+#include <QFile>
 #ifdef FTP
     FTPGUI *ftpgui;
 #endif
